@@ -1,0 +1,20 @@
+{
+  "name": "triyambak-mods",
+  "owner": {
+    "name": "S Triyambaka Patro"
+  },
+  "metadata": {
+    "description": "Claude Code mods by S Triyambaka Patro (@Triyambak_CA)."
+  },
+  "plugins": [
+    {
+      "name": "pace-meter",
+      "description": "A band above the prompt: a pace bar and a forecast for the 5-hour and weekly plan limits.",
+      "version": "0.1.0",
+      "source": "./plugins/pace-meter",
+      "author": {
+        "name": "S Triyambaka Patro"
+      }
+    }
+  ]
+}
