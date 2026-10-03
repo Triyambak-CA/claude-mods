@@ -1,0 +1,9 @@
+{
+  "name": "pace-meter",
+  "version": "0.1.0",
+  "description": "A band above the prompt: a pace bar and a forecast for the 5-hour and weekly plan limits.",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "S Triyambaka Patro"
+  }
+}
