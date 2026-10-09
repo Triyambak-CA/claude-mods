@@ -10,7 +10,7 @@
     {
       "name": "pace-meter",
       "description": "A band above the prompt: a pace bar and a forecast for the 5-hour and weekly plan limits.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source": "./plugins/pace-meter",
       "author": {
         "name": "S Triyambaka Patro"
