@@ -45,6 +45,8 @@ away, otherwise after your first reply.
 Claude Code pushes the usage figures to the mod after each reply (`session.measure`); the mod keeps
 them in its state and draws the rows in the band above the prompt (`ui.render` on `AbovePrompt`).
 A one-minute timer moves the clock, so the post and the forecast keep moving while you are idle.
+The band holds one tree, so the mod draws its rows first and then whatever other mods beneath it
+drew there; it never takes the band for itself.
 
 - `hooks/register.tsx`: the hooks.
 - `hooks/pace.ts`: the arithmetic, as plain data. At the refill you will have used

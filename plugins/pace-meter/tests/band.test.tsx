@@ -17,15 +17,16 @@ const BAND = {
            scroll: { offset: 0, bodyRows: 12 }, view: {} },
 } as const
 
-/** The engine beneath the plugin: the Mac's zone, its usage figures, and its own drawing. */
-function engine(on: On, rateLimits: typeof LIMITS | []) {
+/** The engine beneath the plugin: the Mac's zone, its usage figures, and its own drawing
+ *  (or, given `below`, another mod's row beneath this one). */
+function engine(on: On, rateLimits: typeof LIMITS | [], below?: string) {
   on('process.run', () => ({ value: { exitCode: 0, stdout: '+0530\n', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
   on('session.usage', () => ({ value: { startedAt: NOW_MS, context: { window: 200000 }, rateLimits } }))
   on('session.start', (_$, e) => ({ cwd: e.cwd }))
   on('session.measure', (_$, e) => ({ changed: e.changed }))
   on('ui.render', ($, e) => {
-    const { Box } = $.ui.resolve(e)
-    return <Box key="engine" />
+    const { Box, Text } = $.ui.resolve(e)
+    return below === undefined ? <Box key="engine" /> : <Box key="engine"><Text>{below}</Text></Box>
   })
 }
 
@@ -58,5 +59,24 @@ test('a survey keeps the band to itself', async ($, on) => {
   const ui = await $.ui.mount({ plugin: 'pace-meter', surface: 'terminal', ...BAND,
                                 props: { ...BAND.props, hasSurvey: true } })
   expect(await ui.find({ type: 'Text', text: /5-hour/ })).toBeUndefined()
+  await ui.unmount()
+})
+
+// The band holds one tree, so a mod that answers without next(e) silences every mod
+// beneath it. pace-meter draws its rows first and what lies beneath after them.
+test('shares the band: its rows sit above what the mods beneath draw', async ($, on) => {
+  mock.clock(on, { now: NOW_MS })
+  engine(on, [], 'market row from below')
+  await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
+  const ui = await $.ui.mount({ plugin: 'pace-meter', surface: 'terminal', ...BAND })
+
+  // no reading yet: the row beneath still shows
+  expect(await ui.find({ type: 'Text', text: 'market row from below' })).toBeDefined()
+
+  await $.session.measure({ context: { window: 200000 }, rateLimits: LIMITS, changed: ['rateLimits'] })
+  expect(await ui.find({ type: 'Text', text: 'market row from below' })).toBeDefined()
+  const drawn = JSON.stringify(await ui.drawn())
+  expect(drawn.indexOf('5-hour')).toBeGreaterThan(-1)
+  expect(drawn.indexOf('5-hour')).toBeLessThan(drawn.indexOf('market row from below'))
   await ui.unmount()
 })

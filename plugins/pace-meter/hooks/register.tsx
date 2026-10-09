@@ -53,10 +53,14 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // The band holds one tree: these rows come first, then whatever the mods beneath drew
+  // (a mod that adds a row of its own puts it after what lies beneath it), so the order
+  // holds whichever mod loads first.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
     const rows = paceRows(await read($, limitsAtom), await read($, nowAtom), await read($, offsetAtom))
-    if (rows.length === 0) return next(e)
+    const below = await next(e)
+    if (rows.length === 0) return below
 
     const { Box, Text } = $.ui.resolve(e)
     return (
@@ -70,6 +74,7 @@ export const register: Register = on => {
             ))}
           </Box>
         ))}
+        {below ? [below] : []}
       </Box>
     )
   })
